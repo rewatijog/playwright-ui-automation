@@ -1,3 +1,5 @@
+![CI Status](https://github.com/rewatijog/playwright-ui-automation/actions/workflows/ci.yml/badge.svg)
+
 # Playwright UI Automation (Playwright + TypeScript)
 
 This repository contains a sample end-to-end UI automation framework built using **Playwright** and **TypeScript**.  
