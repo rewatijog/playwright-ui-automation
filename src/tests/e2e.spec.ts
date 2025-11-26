@@ -1,40 +1,31 @@
-import { test, expect } from '@playwright/test';
-import { LoginPage } from '../pages/login.page';
-
+// src/tests/e2e.spec.ts
+import { test, expect } from '../fixtures/base.fixture';
 
 test.describe('SauceDemo E2E', () => {
-test('login and add item to cart', async ({ page }) => {
-const login = new LoginPage(page);
-await login.goto();
-await login.login('standard_user', 'secret_sauce');
-await expect(page.locator('.title')).toHaveText('Products');
+  test.beforeEach(async ({ loginPage }) => {
+    await loginPage.goto();
+    await loginPage.login('standard_user', 'secret_sauce');
+    await expect(loginPage.page.locator('.title')).toHaveText('Products');
+  });
 
+  test('login and add item to cart', async ({ productsPage, page }) => {
+    await productsPage.addFirstItemToCart();
+    await productsPage.goToCart();
+    await expect(page.locator('.cart_item')).toHaveCount(1);
+  });
 
-// add first item to cart
-const firstAddBtn = page.locator('.inventory_item button').first();
-await firstAddBtn.click();
-await page.locator('.shopping_cart_link').click();
-await expect(page.locator('.cart_item')).toHaveCount(1);
-});
+  test('checkout flow', async ({ productsPage, page }) => {
+    await productsPage.addFirstItemToCart();
+    await productsPage.goToCart();
 
+    await page.locator('#checkout').click();
+    await page.locator('#first-name').fill('Rewati');
+    await page.locator('#last-name').fill('Jog');
+    await page.locator('#postal-code').fill('411001');
+    await page.locator('#continue').click();
 
-test('checkout flow', async ({ page }) => {
-const login = new LoginPage(page);
-await login.goto();
-await login.login('standard_user', 'secret_sauce');
-
-
-await page.locator('.inventory_item button').first().click();
-await page.locator('.shopping_cart_link').click();
-await page.locator('#checkout').click();
-await page.locator('#first-name').fill('Rewati');
-await page.locator('#last-name').fill('Jog');
-await page.locator('#postal-code').fill('411001');
-await page.locator('#continue').click();
-
-
-await expect(page.locator('.summary_info')).toBeVisible();
-await page.locator('#finish').click();
-await expect(page.locator('.complete-header')).toBeVisible();
-});
+    await expect(page.locator('.summary_info')).toBeVisible();
+    await page.locator('#finish').click();
+    await expect(page.locator('.complete-header')).toBeVisible();
+  });
 });
